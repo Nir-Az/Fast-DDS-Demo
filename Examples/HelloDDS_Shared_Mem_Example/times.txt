@@ -1,0 +1,112 @@
+root@15c58463f411:/work/HelloDDS/build# ./DDSHelloWorldExampleSharedMem publisher &
+[1] 507
+root@15c58463f411:/work/HelloDDS/build# Starting 
+Publisher running 50 samples.
+./DDSHelloWorldExampleSharedMem subscriber
+Starting 
+Subscriber matched.
+Subscriber running. Please press enter to stop the Subscriber
+Publisher matched.
+Message: HelloWorld with index: 1 SENT
+Message HelloWorld 1 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData1 Time Since Published: 5 [ms]
+Message: HelloWorld with index: 2 SENT
+Message HelloWorld 2 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData2 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 3 SENT
+Message HelloWorld 3 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData3 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 4 SENT
+Message HelloWorld 4 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData4 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 5 SENT
+Message HelloWorld 5 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData5 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 6 SENT
+Message HelloWorld 6 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData6 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 7 SENT
+Message HelloWorld 7 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData7 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 8 SENT
+Message HelloWorld 8 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData8 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 9 SENT
+Message HelloWorld 9 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData9 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 10 SENT
+Message HelloWorld 10 RECEIVED With 1310720(bytes) of Data. DataEnd = igData10 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 11 SENT
+Message HelloWorld 11 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData0 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 12 SENT
+Message HelloWorld 12 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData1 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 13 SENT
+Message HelloWorld 13 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData2 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 14 SENT
+Message HelloWorld 14 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData3 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 15 SENT
+Message HelloWorld 15 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData4 Time Since Published: 4 [ms]
+Message: HelloWorld with index: 16 SENT
+Message HelloWorld 16 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData5 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 17 SENT
+Message HelloWorld 17 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData6 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 18 SENT
+Message HelloWorld 18 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData7 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 19 SENT
+Message HelloWorld 19 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData8 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 20 SENT
+Message HelloWorld 20 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData9 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 21 SENT
+Message HelloWorld 21 RECEIVED With 1310720(bytes) of Data. DataEnd = igData10 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 22 SENT
+Message HelloWorld 22 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData0 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 23 SENT
+Message HelloWorld 23 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData1 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 24 SENT
+Message HelloWorld 24 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData2 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 25 SENT
+Message HelloWorld 25 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData3 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 26 SENT
+Message HelloWorld 26 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData4 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 27 SENT
+Message HelloWorld 27 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData5 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 28 SENT
+Message HelloWorld 28 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData6 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 29 SENT
+Message HelloWorld 29 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData7 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 30 SENT
+Message HelloWorld 30 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData8 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 31 SENT
+Message HelloWorld 31 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData9 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 32 SENT
+Message HelloWorld 32 RECEIVED With 1310720(bytes) of Data. DataEnd = igData10 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 33 SENT
+Message HelloWorld 33 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData0 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 34 SENT
+Message HelloWorld 34 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData1 Time Since Published: 1 [ms]
+Message: HelloWorld with index: 35 SENT
+Message HelloWorld 35 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData2 Time Since Published: 5 [ms]
+Message: HelloWorld with index: 36 SENT
+Message HelloWorld 36 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData3 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 37 SENT
+Message HelloWorld 37 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData4 Time Since Published: 3 [ms]
+Message: HelloWorld with index: 38 SENT
+Message HelloWorld 38 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData5 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 39 SENT
+Message HelloWorld 39 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData6 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 40 SENT
+Message HelloWorld 40 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData7 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 41 SENT
+Message HelloWorld 41 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData8 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 42 SENT
+Message HelloWorld 42 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData9 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 43 SENT
+Message HelloWorld 43 RECEIVED With 1310720(bytes) of Data. DataEnd = igData10 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 44 SENT
+Message HelloWorld 44 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData0 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 45 SENT
+Message HelloWorld 45 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData1 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 46 SENT
+Message HelloWorld 46 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData2 Time Since Published: 1 [ms]
+Message: HelloWorld with index: 47 SENT
+Message HelloWorld 47 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData3 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 48 SENT
+Message HelloWorld 48 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData4 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 49 SENT
+Message HelloWorld 49 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData5 Time Since Published: 2 [ms]
+Message: HelloWorld with index: 50 SENT
+Message HelloWorld 50 RECEIVED With 1310720(bytes) of Data. DataEnd = BigData6 Time Since Published: 3 [ms]
+Subscriber unmatched.
+^A
+

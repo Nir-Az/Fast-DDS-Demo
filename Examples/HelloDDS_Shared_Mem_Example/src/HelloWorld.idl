@@ -1,0 +1,7 @@
+struct HelloWorld
+{
+	unsigned long index;
+	string message;
+	char data[1280*1024];
+	long long publish_time;
+};

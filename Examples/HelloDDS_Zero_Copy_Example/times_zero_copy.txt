@@ -1,0 +1,166 @@
+root@62211336a873:/work/HelloDDS/build# ./DDSHelloWorldExampleZeroCopy publisher &
+[1] 1078
+root@62211336a873:/work/HelloDDS/build# Starting 
+LoanableHelloWorld DataWriter created.
+LoanableHelloWorld DataWriter waiting for DataReaders.
+./DDSHelloWorldExampleZeroCopy subscriber
+Starting 
+Waiting for Data, press Enter to stop the DataReader. 
+DataWriter matched.
+Subscriber matched.
+Preparing sample at address 0x7f00655181cc
+Message: LoanableHelloWorld with index: 1 SENT
+Sample received (count=1) at address 0x7fe56e7bc1cc  index=1  message=0x7fe56e7bc1d0 Time Since Published: 345 [us]
+Preparing sample at address 0x7f00656582cc
+Message: LoanableHelloWorld with index: 2 SENT
+Sample received (count=2) at address 0x7fe56e8fc2cc  index=2  message=0x7fe56e8fc2d0 Time Since Published: 266 [us]
+Preparing sample at address 0x7f00657983cc
+Message: LoanableHelloWorld with index: 3 SENT
+Sample received (count=3) at address 0x7fe56ea3c3cc  index=3  message=0x7fe56ea3c3d0 Time Since Published: 227 [us]
+Preparing sample at address 0x7f00658d84cc
+Message: LoanableHelloWorld with index: 4 SENT
+Sample received (count=4) at address 0x7fe56eb7c4cc  index=4  message=0x7fe56eb7c4d0 Time Since Published: 620 [us]
+Preparing sample at address 0x7f0065a185cc
+Message: LoanableHelloWorld with index: 5 SENT
+Sample received (count=5) at address 0x7fe56ecbc5cc  index=5  message=0x7fe56ecbc5d0 Time Since Published: 563 [us]
+Preparing sample at address 0x7f0065b586cc
+Message: LoanableHelloWorld with index: 6 SENT
+Sample received (count=6) at address 0x7fe56edfc6cc  index=6  message=0x7fe56edfc6d0 Time Since Published: 556 [us]
+Preparing sample at address 0x7f0065c987cc
+Message: LoanableHelloWorld with index: 7 SENT
+Sample received (count=7) at address 0x7fe56ef3c7cc  index=7  message=0x7fe56ef3c7d0 Time Since Published: 203 [us]
+Preparing sample at address 0x7f0065dd88cc
+Message: LoanableHelloWorld with index: 8 SENT
+Sample received (count=8) at address 0x7fe56f07c8cc  index=8  message=0x7fe56f07c8d0 Time Since Published: 285 [us]
+Preparing sample at address 0x7f0065f189cc
+Message: LoanableHelloWorld with index: 9 SENT
+Sample received (count=9) at address 0x7fe56f1bc9cc  index=9  message=0x7fe56f1bc9d0 Time Since Published: 176 [us]
+Preparing sample at address 0x7f0066058acc
+Message: LoanableHelloWorld with index: 10 SENT
+Sample received (count=10) at address 0x7fe56f2fcacc  index=10  message=0x7fe56f2fcad0 Time Since Published: 266 [us]
+Preparing sample at address 0x7f0066198bcc
+Message: LoanableHelloWorld with index: 11 SENT
+Sample received (count=11) at address 0x7fe56f43cbcc  index=11  message=0x7fe56f43cbd0 Time Since Published: 236 [us]
+Preparing sample at address 0x7f00655181cc
+Message: LoanableHelloWorld with index: 12 SENT
+Sample received (count=12) at address 0x7fe56e7bc1cc  index=12  message=0x7fe56e7bc1d0 Time Since Published: 319 [us]
+Preparing sample at address 0x7f00656582cc
+Message: LoanableHelloWorld with index: 13 SENT
+Sample received (count=13) at address 0x7fe56e8fc2cc  index=13  message=0x7fe56e8fc2d0 Time Since Published: 321 [us]
+Preparing sample at address 0x7f00657983cc
+Message: LoanableHelloWorld with index: 14 SENT
+Sample received (count=14) at address 0x7fe56ea3c3cc  index=14  message=0x7fe56ea3c3d0 Time Since Published: 239 [us]
+Preparing sample at address 0x7f00658d84cc
+Message: LoanableHelloWorld with index: 15 SENT
+Sample received (count=15) at address 0x7fe56eb7c4cc  index=15  message=0x7fe56eb7c4d0 Time Since Published: 250 [us]
+Preparing sample at address 0x7f0065a185cc
+Message: LoanableHelloWorld with index: 16 SENT
+Sample received (count=16) at address 0x7fe56ecbc5cc  index=16  message=0x7fe56ecbc5d0 Time Since Published: 294 [us]
+Preparing sample at address 0x7f0065b586cc
+Message: LoanableHelloWorld with index: 17 SENT
+Sample received (count=17) at address 0x7fe56edfc6cc  index=17  message=0x7fe56edfc6d0 Time Since Published: 468 [us]
+Preparing sample at address 0x7f0065c987cc
+Message: LoanableHelloWorld with index: 18 SENT
+Sample received (count=18) at address 0x7fe56ef3c7cc  index=18  message=0x7fe56ef3c7d0 Time Since Published: 292 [us]
+Preparing sample at address 0x7f0065dd88cc
+Message: LoanableHelloWorld with index: 19 SENT
+Sample received (count=19) at address 0x7fe56f07c8cc  index=19  message=0x7fe56f07c8d0 Time Since Published: 362 [us]
+Preparing sample at address 0x7f0065f189cc
+Message: LoanableHelloWorld with index: 20 SENT
+Sample received (count=20) at address 0x7fe56f1bc9cc  index=20  message=0x7fe56f1bc9d0 Time Since Published: 295 [us]
+Preparing sample at address 0x7f0066058acc
+Message: LoanableHelloWorld with index: 21 SENT
+Sample received (count=21) at address 0x7fe56f2fcacc  index=21  message=0x7fe56f2fcad0 Time Since Published: 277 [us]
+Preparing sample at address 0x7f0066198bcc
+Message: LoanableHelloWorld with index: 22 SENT
+Sample received (count=22) at address 0x7fe56f43cbcc  index=22  message=0x7fe56f43cbd0 Time Since Published: 272 [us]
+Preparing sample at address 0x7f00655181cc
+Message: LoanableHelloWorld with index: 23 SENT
+Sample received (count=23) at address 0x7fe56e7bc1cc  index=23  message=0x7fe56e7bc1d0 Time Since Published: 304 [us]
+Preparing sample at address 0x7f00656582cc
+Message: LoanableHelloWorld with index: 24 SENT
+Sample received (count=24) at address 0x7fe56e8fc2cc  index=24  message=0x7fe56e8fc2d0 Time Since Published: 249 [us]
+Preparing sample at address 0x7f00657983cc
+Message: LoanableHelloWorld with index: 25 SENT
+Sample received (count=25) at address 0x7fe56ea3c3cc  index=25  message=0x7fe56ea3c3d0 Time Since Published: 315 [us]
+Preparing sample at address 0x7f00658d84cc
+Message: LoanableHelloWorld with index: 26 SENT
+Sample received (count=26) at address 0x7fe56eb7c4cc  index=26  message=0x7fe56eb7c4d0 Time Since Published: 289 [us]
+Preparing sample at address 0x7f0065a185cc
+Message: LoanableHelloWorld with index: 27 SENT
+Sample received (count=27) at address 0x7fe56ecbc5cc  index=27  message=0x7fe56ecbc5d0 Time Since Published: 320 [us]
+Preparing sample at address 0x7f0065b586cc
+Message: LoanableHelloWorld with index: 28 SENT
+Sample received (count=28) at address 0x7fe56edfc6cc  index=28  message=0x7fe56edfc6d0 Time Since Published: 249 [us]
+Preparing sample at address 0x7f0065c987cc
+Message: LoanableHelloWorld with index: 29 SENT
+Sample received (count=29) at address 0x7fe56ef3c7cc  index=29  message=0x7fe56ef3c7d0 Time Since Published: 239 [us]
+Preparing sample at address 0x7f0065dd88cc
+Message: LoanableHelloWorld with index: 30 SENT
+Sample received (count=30) at address 0x7fe56f07c8cc  index=30  message=0x7fe56f07c8d0 Time Since Published: 292 [us]
+Preparing sample at address 0x7f0065f189cc
+Message: LoanableHelloWorld with index: 31 SENT
+Sample received (count=31) at address 0x7fe56f1bc9cc  index=31  message=0x7fe56f1bc9d0 Time Since Published: 498 [us]
+Preparing sample at address 0x7f0066058acc
+Message: LoanableHelloWorld with index: 32 SENT
+Sample received (count=32) at address 0x7fe56f2fcacc  index=32  message=0x7fe56f2fcad0 Time Since Published: 228 [us]
+Preparing sample at address 0x7f0066198bcc
+Message: LoanableHelloWorld with index: 33 SENT
+Sample received (count=33) at address 0x7fe56f43cbcc  index=33  message=0x7fe56f43cbd0 Time Since Published: 486 [us]
+Preparing sample at address 0x7f00655181cc
+Message: LoanableHelloWorld with index: 34 SENT
+Sample received (count=34) at address 0x7fe56e7bc1cc  index=34  message=0x7fe56e7bc1d0 Time Since Published: 277 [us]
+Preparing sample at address 0x7f00656582cc
+Message: LoanableHelloWorld with index: 35 SENT
+Sample received (count=35) at address 0x7fe56e8fc2cc  index=35  message=0x7fe56e8fc2d0 Time Since Published: 568 [us]
+Preparing sample at address 0x7f00657983cc
+Message: LoanableHelloWorld with index: 36 SENT
+Sample received (count=36) at address 0x7fe56ea3c3cc  index=36  message=0x7fe56ea3c3d0 Time Since Published: 314 [us]
+Preparing sample at address 0x7f00658d84cc
+Message: LoanableHelloWorld with index: 37 SENT
+Sample received (count=37) at address 0x7fe56eb7c4cc  index=37  message=0x7fe56eb7c4d0 Time Since Published: 200 [us]
+Preparing sample at address 0x7f0065a185cc
+Message: LoanableHelloWorld with index: 38 SENT
+Sample received (count=38) at address 0x7fe56ecbc5cc  index=38  message=0x7fe56ecbc5d0 Time Since Published: 191 [us]
+Preparing sample at address 0x7f0065b586cc
+Message: LoanableHelloWorld with index: 39 SENT
+Sample received (count=39) at address 0x7fe56edfc6cc  index=39  message=0x7fe56edfc6d0 Time Since Published: 190 [us]
+Preparing sample at address 0x7f0065c987cc
+Message: LoanableHelloWorld with index: 40 SENT
+Sample received (count=40) at address 0x7fe56ef3c7cc  index=40  message=0x7fe56ef3c7d0 Time Since Published: 191 [us]
+Preparing sample at address 0x7f0065dd88cc
+Message: LoanableHelloWorld with index: 41 SENT
+Sample received (count=41) at address 0x7fe56f07c8cc  index=41  message=0x7fe56f07c8d0 Time Since Published: 163 [us]
+Preparing sample at address 0x7f0065f189cc
+Message: LoanableHelloWorld with index: 42 SENT
+Sample received (count=42) at address 0x7fe56f1bc9cc  index=42  message=0x7fe56f1bc9d0 Time Since Published: 189 [us]
+Preparing sample at address 0x7f0066058acc
+Message: LoanableHelloWorld with index: 43 SENT
+Sample received (count=43) at address 0x7fe56f2fcacc  index=43  message=0x7fe56f2fcad0 Time Since Published: 161 [us]
+Preparing sample at address 0x7f0066198bcc
+Message: LoanableHelloWorld with index: 44 SENT
+Sample received (count=44) at address 0x7fe56f43cbcc  index=44  message=0x7fe56f43cbd0 Time Since Published: 205 [us]
+Preparing sample at address 0x7f00655181cc
+Message: LoanableHelloWorld with index: 45 SENT
+Sample received (count=45) at address 0x7fe56e7bc1cc  index=45  message=0x7fe56e7bc1d0 Time Since Published: 237 [us]
+Preparing sample at address 0x7f00656582cc
+Message: LoanableHelloWorld with index: 46 SENT
+Sample received (count=46) at address 0x7fe56e8fc2cc  index=46  message=0x7fe56e8fc2d0 Time Since Published: 159 [us]
+Preparing sample at address 0x7f00657983cc
+Message: LoanableHelloWorld with index: 47 SENT
+Sample received (count=47) at address 0x7fe56ea3c3cc  index=47  message=0x7fe56ea3c3d0 Time Since Published: 332 [us]
+Preparing sample at address 0x7f00658d84cc
+Message: LoanableHelloWorld with index: 48 SENT
+Sample received (count=48) at address 0x7fe56eb7c4cc  index=48  message=0x7fe56eb7c4d0 Time Since Published: 222 [us]
+Preparing sample at address 0x7f0065a185cc
+Message: LoanableHelloWorld with index: 49 SENT
+Sample received (count=49) at address 0x7fe56ecbc5cc  index=49  message=0x7fe56ecbc5d0 Time Since Published: 268 [us]
+Preparing sample at address 0x7f0065b586cc
+Message: LoanableHelloWorld with index: 50 SENT
+Sample received (count=50) at address 0x7fe56edfc6cc  index=50  message=0x7fe56edfc6d0 Time Since Published: 331 [us]
+Preparing sample at address 0x7f0065c987cc
+Message: LoanableHelloWorld with index: 51 SENT
+Sample received (count=51) at address 0x7fe56ef3c7cc  index=51  message=0x7fe56ef3c7d0 Time Since Published: 474 [us]
+Subscriber unmatched.
+
+
