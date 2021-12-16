@@ -1,3 +1,0 @@
-/work/HelloDDS/build/CMakeFiles/rebuild_cache.dir
-/work/HelloDDS/build/CMakeFiles/edit_cache.dir
-/work/HelloDDS/build/CMakeFiles/DDSHelloWorldExampleSharedMem.dir
