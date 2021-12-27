@@ -1,4 +1,3 @@
-#!/usr/bin/bash
 echo "lunching publisher"
 ./build/DDSHelloWorldExampleZeroCopy publisher &
 sleep 2
@@ -7,3 +6,4 @@ echo "lunching subscriber I"
 sleep 2
 echo "lunching subscriber 2"
 ./build/DDSHelloWorldExampleZeroCopy subscriber
+

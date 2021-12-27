@@ -56,11 +56,22 @@ LoanableHelloWorldSubscriber::~LoanableHelloWorldSubscriber()
     DomainParticipantFactory::get_instance()->delete_participant(participant_);
 }
 
-bool LoanableHelloWorldSubscriber::init()
+bool LoanableHelloWorldSubscriber::init( bool slow )
 {
+    if (slow)
+    {
+        listener_.set_slow_speed();
+    }
+    
     //CREATE THE PARTICIPANT
     DomainParticipantQos pqos;
     pqos.name("Participant_sub");
+
+    // Indicates for how much time should a remote DomainParticipant consider the local DomainParticipant to be alive. 
+    // If the liveliness of the local DomainParticipant has not being asserted within this time, 
+    // the remote DomainParticipant considers the local DomainParticipant dead and destroys all the information regarding the local DomainParticipant and all its endpoints.
+    pqos.wire_protocol().builtin.discovery_config.leaseDuration = { 10, 0 }; //[sec, nsec]
+
     participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
     if (participant_ == nullptr)
     {
@@ -106,6 +117,7 @@ bool LoanableHelloWorldSubscriber::init()
      // Strict samples pre-alocated pool to minimum size needed
     rqos.resource_limits().max_samples = 1;
     rqos.resource_limits().allocated_samples = 1;
+    rqos.resource_limits().extra_samples = 0;
 
     reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
     if (reader_ == nullptr)
@@ -144,26 +156,26 @@ void LoanableHelloWorldSubscriber::SubListener::on_data_available(
 
     DataSeq data;
     SampleInfoSeq infos;
-    while (ReturnCode_t::RETCODE_OK == reader->take(data, infos))
+    while (ReturnCode_t::RETCODE_OK == reader->take(data, infos, 1))
     {
-        for (LoanableCollection::size_type i = 0; i < infos.length(); ++i)
+        if (infos[0].valid_data)
         {
-            if (infos[i].valid_data)
-            {
-                // Print your structure data here.
-                const LoanableHelloWorld& sample = data[i];
-                
-                ++samples;
-                using namespace std::chrono;
-	            auto time_now_us =  duration_cast< microseconds >( system_clock::now().time_since_epoch()).count();
+            // Print your structure data here.
+            const LoanableHelloWorld& sample = data[0];
+            
+            ++samples;
+            using namespace std::chrono;
+            auto time_now_us =  duration_cast< microseconds >( system_clock::now().time_since_epoch()).count();
+            std::cout << (_slow ? "Slow " : "") << "Sample received (count=" << samples << ") at address " << &sample.data() 
+                        << "  index=" << sample.index() 
+                        << " Time Since Published: " << (time_now_us - sample.publish_time()) << " [us]"
+                        << std::endl;
 
-                std::cout << "Sample received (count=" << samples << ") at address " << &sample.data() 
-                          << "  index=" << sample.index() 
-                          << " Time Since Published: " << (time_now_us - sample.publish_time()) << " [us]"
-                          << std::endl;
-            }
         }
+        if ( _slow )
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         reader->return_loan(data, infos);
+        
     }
 }
 

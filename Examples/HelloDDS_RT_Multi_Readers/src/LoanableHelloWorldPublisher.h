@@ -61,6 +61,10 @@ private:
                 eprosima::fastdds::dds::DataWriter* writer,
                 const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
 
+        void on_offered_incompatible_qos(
+            eprosima::fastdds::dds::DataWriter* writer,
+            const eprosima::fastdds::dds::OfferedIncompatibleQosStatus& status ) override;
+
         int matched = 0;
     }
     listener_;

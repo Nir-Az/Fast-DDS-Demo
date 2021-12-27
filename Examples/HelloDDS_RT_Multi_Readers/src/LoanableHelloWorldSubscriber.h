@@ -36,7 +36,7 @@ public:
 
     virtual ~LoanableHelloWorldSubscriber();
 
-    bool init();
+    bool init( bool slow = false );
 
     void run();
 
@@ -47,6 +47,7 @@ private:
     eprosima::fastdds::dds::Topic* topic_;
     eprosima::fastdds::dds::DataReader* reader_;
     eprosima::fastdds::dds::TypeSupport type_;
+    bool _slow = false;
 
     class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
@@ -62,9 +63,13 @@ private:
         void on_subscription_matched(
                 eprosima::fastdds::dds::DataReader* reader,
                 const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
+        
+        void set_slow_speed() { _slow = true;}
 
         int matched = 0;
         uint32_t samples = 0;
+    private:
+        bool _slow = false;
     }
     listener_;
 };

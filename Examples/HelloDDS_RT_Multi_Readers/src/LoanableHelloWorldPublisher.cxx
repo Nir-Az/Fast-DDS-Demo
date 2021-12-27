@@ -68,6 +68,12 @@ bool LoanableHelloWorldPublisher::init()
     //CREATE THE PARTICIPANT
     DomainParticipantQos pqos;
     pqos.name("Participant_pub");
+
+    // Indicates for how much time should a remote DomainParticipant consider the local DomainParticipant to be alive. 
+    // If the liveliness of the local DomainParticipant has not being asserted within this time, 
+    // the remote DomainParticipant considers the local DomainParticipant dead and destroys all the information regarding the local DomainParticipant and all its endpoints.
+    pqos.wire_protocol().builtin.discovery_config.leaseDuration = { 10, 0 }; //[sec]
+
     participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
     if (participant_ == nullptr)
     {
@@ -121,6 +127,7 @@ bool LoanableHelloWorldPublisher::init()
     // Strict samples pre-alocated pool to minimum size needed
     wqos.resource_limits().max_samples = 1;
     wqos.resource_limits().allocated_samples = 1;
+    wqos.resource_limits().extra_samples = 0;
     
     writer_ = publisher_->create_datawriter(topic_, wqos, &listener_);
     if (writer_ == nullptr)
@@ -153,6 +160,13 @@ void LoanableHelloWorldPublisher::PubListener::on_publication_matched(
     }
 }
 
+void LoanableHelloWorldPublisher::PubListener::on_offered_incompatible_qos(
+        DataWriter* writer,
+        const OfferedIncompatibleQosStatus& status ) 
+    {
+        std::cout << "Publisher incompatible QOS detected" << std::endl;
+    }
+
 void LoanableHelloWorldPublisher::run()
 {
     std::cout << "LoanableHelloWorld DataWriter waiting for DataReaders." << std::endl;
@@ -165,13 +179,13 @@ void LoanableHelloWorldPublisher::run()
     auto sleep_time = 33;
 
     rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_COLOR);
+    cfg.enable_stream(RS2_STREAM_COLOR, 1280, 720);
     rs2::pipeline p;
-    //p.start(cfg);
+    p.start(cfg);
 
     do
     {
-            //auto f = p.wait_for_frames();
+            auto f = p.wait_for_frames();
             void* sample = nullptr;
             if (ReturnCode_t::RETCODE_OK == writer_->loan_sample(sample))
             {
@@ -179,19 +193,22 @@ void LoanableHelloWorldPublisher::run()
                 LoanableHelloWorld* data = static_cast<LoanableHelloWorld*>(sample);
                 data->index() = msgsent++;
 		        std::string HiString = "LoanableHelloWorld";
-                //auto color_frame = f.get_color_frame();
-                //auto h = color_frame.get_height();
-                //auto w = color_frame.get_width();
-                //std::cout << "dim is: " << w << " x " << h << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
-                //memcpy(&data->data(), color_frame.get_data(), color_frame.get_data_size());
+                auto color_frame = f.get_color_frame();
+                auto h = color_frame.get_height();
+                auto w = color_frame.get_width();
+                std::cout << "dim is: " << w << " x " << h << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
+                memcpy(&data->data(), color_frame.get_data(), color_frame.get_data_size());
                 using namespace std::chrono; 
 	            auto time_now_us =  duration_cast< microseconds >( system_clock::now().time_since_epoch()).count();
                 
                 data->publish_time(time_now_us);
-                std::cout << "Message: " << HiString << " with index: " << data->index() << " SENT" << std::endl;
-                writer_->write(sample);
+                bool ok = writer_->write(sample);
+                std::cout << "Message: " << HiString << " with index: " << data->index() << (ok ? " SENT" : "NOT SENT") << std::endl;
+            }
+            else{
+                std::cout << "ERROR: writer_->loan_sample failed" << std::endl; 
             }
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            //std::this_thread::sleep_for(std::chrono::milliseconds(33));
     } while (listener_.matched != 0 /*msgsent++ < 50*/);
 }

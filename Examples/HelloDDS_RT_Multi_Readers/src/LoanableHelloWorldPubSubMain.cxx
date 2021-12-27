@@ -28,18 +28,25 @@ int main(
         char** argv)
 {
     int type = 0;
+    bool slow = false;
 
-    if (argc == 2)
+    if (argc == 2 || argc == 3)
     {
-        if (strcmp(argv[1], "publisher") == 0)
+        if (argc == 2 && strcmp(argv[1], "publisher") == 0)
         {
             type = 1;
         }
-        else if (strcmp(argv[1], "subscriber") == 0)
+        else if (argc == 2 && strcmp(argv[1], "subscriber") == 0)
         {
             type = 2;
         }
+        else if (argc == 3 && strcmp(argv[1], "subscriber") == 0 && strcmp(argv[2], "slow") == 0)
+        {
+            type = 2;
+            slow = true;
+        }
     }
+    
 
     if (type == 0)
     {
@@ -71,7 +78,7 @@ int main(
         case 2:
         {
             LoanableHelloWorldSubscriber mysub;
-            if (mysub.init())
+            if (mysub.init( slow ))
             {
                 mysub.run();
             }
