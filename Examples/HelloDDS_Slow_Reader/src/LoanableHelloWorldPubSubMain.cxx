@@ -78,14 +78,11 @@ int main(
         case 2:
         {
             LoanableHelloWorldSubscriber mysub;
-            if (mysub.init( slow ))
-            {
-                mysub.run();
-            }
-            else
+            if (!mysub.init( slow ))
             {
                 std::cout << "Failed creating subscriber!" << std::endl;
             }
+            std::cin.ignore();
             break;
         }
     }

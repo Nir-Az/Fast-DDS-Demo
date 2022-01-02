@@ -27,6 +27,8 @@
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/core/condition/WaitSet.hpp>
+#include <fastdds/dds/core/condition/GuardCondition.hpp>
 
 class LoanableHelloWorldSubscriber
 {
@@ -49,6 +51,11 @@ private:
     eprosima::fastdds::dds::TypeSupport type_;
     bool _slow = false;
 
+    eprosima::fastdds::dds::WaitSet wait_set_;
+    eprosima::fastdds::dds::GuardCondition terminate_condition_;
+    std::thread thread_;
+    uint32_t samples = 0;
+
     class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
     public:
@@ -57,8 +64,8 @@ private:
 
         ~SubListener() override = default;
 
-        void on_data_available(
-                eprosima::fastdds::dds::DataReader* reader) override;
+        //void on_data_available(
+        //        eprosima::fastdds::dds::DataReader* reader) override;
 
         void on_subscription_matched(
                 eprosima::fastdds::dds::DataReader* reader,

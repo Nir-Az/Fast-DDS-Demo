@@ -31,59 +31,64 @@
 using namespace eprosima::fastdds::dds;
 
 LoanableHelloWorldSubscriber::LoanableHelloWorldSubscriber()
-    : participant_(nullptr)
-    , subscriber_(nullptr)
-    , topic_(nullptr)
-    , reader_(nullptr)
-    , type_(new LoanableHelloWorldPubSubType())
+    : participant_( nullptr )
+    , subscriber_( nullptr )
+    , topic_( nullptr )
+    , reader_( nullptr )
+    , type_( new LoanableHelloWorldPubSubType() )
 {
 }
 
 LoanableHelloWorldSubscriber::~LoanableHelloWorldSubscriber()
 {
-    if (reader_ != nullptr)
+
+    // Signal the GuardCondition to force the WaitSet to wake up
+    terminate_condition_.set_trigger_value( true );
+
+    // Wait for the thread to finish
+    if( thread_.joinable() )
+        thread_.join();
+
+    if( reader_ != nullptr )
     {
-        subscriber_->delete_datareader(reader_);
+        subscriber_->delete_datareader( reader_ );
     }
-    if (topic_ != nullptr)
+    if( topic_ != nullptr )
     {
-        participant_->delete_topic(topic_);
+        participant_->delete_topic( topic_ );
     }
-    if (subscriber_ != nullptr)
+    if( subscriber_ != nullptr )
     {
-        participant_->delete_subscriber(subscriber_);
+        participant_->delete_subscriber( subscriber_ );
     }
-    DomainParticipantFactory::get_instance()->delete_participant(participant_);
+    DomainParticipantFactory::get_instance()->delete_participant( participant_ );
 }
 
 bool LoanableHelloWorldSubscriber::init( bool slow )
 {
-    if (slow)
-    {
-        listener_.set_slow_speed();
-    }
-    
+    _slow = slow;
+
     //CREATE THE PARTICIPANT
     DomainParticipantQos pqos;
-    pqos.name("Participant_sub");
+    pqos.name( "Participant_sub" );
 
     // Indicates for how much time should a remote DomainParticipant consider the local DomainParticipant to be alive. 
     // If the liveliness of the local DomainParticipant has not being asserted within this time, 
     // the remote DomainParticipant considers the local DomainParticipant dead and destroys all the information regarding the local DomainParticipant and all its endpoints.
     pqos.wire_protocol().builtin.discovery_config.leaseDuration = { 10, 0 }; //[sec, nsec]
 
-    participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
-    if (participant_ == nullptr)
+    participant_ = DomainParticipantFactory::get_instance()->create_participant( 0, pqos );
+    if( participant_ == nullptr )
     {
         return false;
     }
 
     //REGISTER THE TYPE
-    type_.register_type(participant_);
+    type_.register_type( participant_ );
 
     //CREATE THE SUBSCRIBER
-    subscriber_ = participant_->create_subscriber(SUBSCRIBER_QOS_DEFAULT, nullptr);
-    if (subscriber_ == nullptr)
+    subscriber_ = participant_->create_subscriber( SUBSCRIBER_QOS_DEFAULT, nullptr );
+    if( subscriber_ == nullptr )
     {
         return false;
     }
@@ -92,55 +97,57 @@ bool LoanableHelloWorldSubscriber::init( bool slow )
     topic_ = participant_->create_topic(
         "RS_FRAME",
         type_.get_type_name(),
-        TOPIC_QOS_DEFAULT);
-    if (topic_ == nullptr)
+        TOPIC_QOS_DEFAULT );
+    if( topic_ == nullptr )
     {
         return false;
     }
 
     //CREATE THE READER
     DataReaderQos rqos = subscriber_->get_default_datareader_qos();
-    
+
     //The 'depth' parameter of the History defines how many samples are stored before starting to overwrite them with newer ones.
     rqos.history().kind = KEEP_LAST_HISTORY_QOS;
     rqos.history().depth = 1;
-    
-    // We use "RELIABLE_RELIABILITY_QOS" for making sure that the writer will only get a new sample slot
-    // If the reader is not reading it.
-    //rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+
+    // TODO : Explain why 'BEST_EFFORT_RELIABILITY_QOS'
     rqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
-    
+
     // The Subscriber receives samples from the moment it comes online, not before
     rqos.durability().kind = VOLATILE_DURABILITY_QOS;
 
     // Activate the use of DataSharing. Entity creation will fail if requirements for DataSharing are not met
     // The input shared memory folder can be changed into a specific folder but must be aligned with the readers
-    rqos.data_sharing().on("");
+    rqos.data_sharing().on( "" );
 
     // Strict samples pre-alocated pool to minimum size needed
     rqos.resource_limits().max_samples = 1;
-    //rqos.resource_limits().allocated_samples = 1;
+    rqos.resource_limits().allocated_samples = 1;
     rqos.resource_limits().extra_samples = 0;
 
-    reader_ = subscriber_->create_datareader(topic_, rqos, &listener_);
-    if (reader_ == nullptr)
+    reader_ = subscriber_->create_datareader( topic_, rqos, &listener_ );
+    if( reader_ == nullptr )
     {
         return false;
     }
+
+    wait_set_.attach_condition( terminate_condition_ );
+    wait_set_.attach_condition( reader_->get_statuscondition() );
+    thread_ = std::thread( &LoanableHelloWorldSubscriber::run, this );
 
     return true;
 }
 
 void LoanableHelloWorldSubscriber::SubListener::on_subscription_matched(
-        DataReader*,
-        const SubscriptionMatchedStatus& info)
+    DataReader*,
+    const SubscriptionMatchedStatus& info )
 {
-    if (info.current_count_change == 1)
+    if( info.current_count_change == 1 )
     {
         matched = info.total_count;
         std::cout << "Subscriber matched." << std::endl;
     }
-    else if (info.current_count_change == -1)
+    else if( info.current_count_change == -1 )
     {
         matched = info.total_count;
         std::cout << "Subscriber unmatched." << std::endl;
@@ -148,58 +155,101 @@ void LoanableHelloWorldSubscriber::SubListener::on_subscription_matched(
     else
     {
         std::cout << info.current_count_change
-                  << " is not a valid value for SubscriptionMatchedStatus current count change" << std::endl;
-    }
-}
-
-void LoanableHelloWorldSubscriber::SubListener::on_data_available(
-        DataReader* reader)
-{
-    FASTDDS_SEQUENCE(DataSeq, LoanableHelloWorld);
-
-    DataSeq data;
-    SampleInfoSeq infos;
-    while (ReturnCode_t::RETCODE_OK == reader->take(data, infos))
-    {
-        for (LoanableCollection::size_type i = 0; i < infos.length(); ++i)
-        {
-            if (infos[i].valid_data)
-            {
-                // `is_sample_valid()` return always false - BUG on FastDDS
-                //if (!reader->is_sample_valid(&data[0], &infos[0]))
-                //{
-                //    std::cout << "Sample is not valid!" << std::endl;
-                //}
-                // Print your structure data here.
-                const LoanableHelloWorld& sample = data[i];
-                
-                ++samples;
-                using namespace std::chrono;
-                auto time_now_us =  duration_cast< microseconds >( system_clock::now().time_since_epoch()).count();
-                std::cout << (_slow ? "Slow " : "") << "Sample received (count=" << samples << ") at address " << &sample.data() 
-                            << "  index=" << sample.index() 
-                            << " Time Since Published: " << (time_now_us - sample.publish_time()) << " [us]"
-                            << std::endl;
-                auto slot = sample.data()[0];
-                std::this_thread::sleep_for(std::chrono::milliseconds(40));
-                for (int j = 1 ; j < 1000; ++j)
-                    if (sample.data()[j] != slot)
-                    {
-                        std::cout << "corrupted data found at slot: " << j << ", expected: " << (int)slot << " got: " << (int)sample.data()[i] << std::endl;
-                        //std::this_thread::sleep_for(std::chrono::seconds(10));
-                    }
-            }
-        }
-        if ( _slow )
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        reader->return_loan(data, infos);        
+            << " is not a valid value for SubscriptionMatchedStatus current count change" << std::endl;
     }
 }
 
 void LoanableHelloWorldSubscriber::run()
 {
-    std::cout << "Waiting for Data, press Enter to stop the DataReader. " << std::endl;
-    std::cin.ignore();
-    std::cout << "Shutting down the Subscriber." << std::endl;
+    // Main loop is repeated until the terminate condition is triggered
+    while( false == terminate_condition_.get_trigger_value() )
+    {
+        // Wait for any of the conditions to be triggered
+        ReturnCode_t ret_code;
+        ConditionSeq triggered_conditions;
+        ret_code = wait_set_.wait( triggered_conditions, eprosima::fastrtps::c_TimeInfinite );
+        if( ReturnCode_t::RETCODE_OK != ret_code )
+        {
+            std::cout << "Error on `wait()`, error code: " << std::to_string( ret_code() ) << std::endl;
+            continue;
+        }
+
+        // Process triggered conditions
+        for( Condition* cond : triggered_conditions )
+        {
+            StatusCondition* status_cond = dynamic_cast<StatusCondition*>( cond );
+            if( nullptr != status_cond )
+            {
+                Entity* entity = status_cond->get_entity();
+                StatusMask changed_statuses = entity->get_status_changes();
+
+                // Process status. Liveliness changed and data available are depicted as an example
+                if( changed_statuses.is_active( StatusMask::liveliness_changed() ) )
+                {
+                    std::cout << "Liveliness changed reported for entity " << entity->get_instance_handle() <<
+                        std::endl;
+                }
+
+                if( changed_statuses.is_active( StatusMask::data_available() ) )
+                {
+                    //std::cout << "Data avilable on reader " << entity->get_instance_handle() << std::endl;
+                    FASTDDS_SEQUENCE( DataSeq, LoanableHelloWorld );
+                    DataSeq data;
+                    SampleInfoSeq infos;
+                    DataReader* reader = static_cast<DataReader*>( entity );
+
+                    // Process all the samples until no one is returned
+                    while( ReturnCode_t::RETCODE_OK == reader->take( data, infos,
+                        LENGTH_UNLIMITED, ANY_SAMPLE_STATE,
+                        ANY_VIEW_STATE, ANY_INSTANCE_STATE ) )
+                    {
+                        // Both info_seq.length() and data_seq.length() will have the number of samples returned
+                        for( DataSeq::size_type i = 0; i < infos.length(); ++i )
+                        {
+                            // Only samples for which valid_data is true should be accessed
+                            if( infos[i].valid_data )
+                            {
+                                // Process sample on data_seq[n]
+                                // `is_sample_valid()` return always false - BUG on FastDDS
+                                //if (!reader->is_sample_valid(&data[0], &infos[0]))
+                                //{
+                                //    std::cout << "Sample is not valid!" << std::endl;
+                                //}
+                                // Print your structure data here.
+                                const LoanableHelloWorld& sample = data[i];
+
+                                ++samples;
+                                using namespace std::chrono;
+                                auto time_now_us = duration_cast<microseconds>( system_clock::now().time_since_epoch() ).count();
+                                std::cout << ( _slow ? "Slow " : "" ) << "Sample received (count=" << samples << ") at address " << &sample.data()
+                                    << "  index=" << sample.index()
+                                    << " Time Since Published: " << ( time_now_us - sample.publish_time() ) << " [us]"
+                                    << std::endl;
+                                auto slot = sample.data()[0];
+                                std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+                                int corrupted_bytes = 0;
+                                for( int j = 1; j < 1000; ++j )
+                                    if( sample.data()[j] != slot )
+                                    {
+                                        corrupted_bytes++;
+                                    }
+
+                                if( corrupted_bytes > 0 )
+                                    std::cout << "corrupted data found" << std::endl;
+
+                                if( !infos[i].valid_data )
+                                    std::cout << "corrupted data found after processing!" << std::endl;
+
+                                if( _slow )
+                                    std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+                            }
+                        }
+
+                        // must return the loaned sequences when done processing
+                        reader->return_loan( data, infos );
+                    }
+                }
+            }
+        }
+    }
 }

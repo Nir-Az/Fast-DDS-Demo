@@ -36,66 +36,65 @@
 using namespace eprosima::fastdds::dds;
 
 LoanableHelloWorldPublisher::LoanableHelloWorldPublisher()
-    : participant_(nullptr)
-    , publisher_(nullptr)
-    , topic_(nullptr)
-    , writer_(nullptr)
-    , type_(new LoanableHelloWorldPubSubType())
+    : participant_( nullptr )
+    , publisher_( nullptr )
+    , topic_( nullptr )
+    , writer_( nullptr )
+    , type_( new LoanableHelloWorldPubSubType() )
 {
 }
 
 LoanableHelloWorldPublisher::~LoanableHelloWorldPublisher()
 {
-    if (writer_ != nullptr)
+    if( writer_ != nullptr )
     {
-        publisher_->delete_datawriter(writer_);
+        publisher_->delete_datawriter( writer_ );
     }
-    if (publisher_ != nullptr)
+    if( publisher_ != nullptr )
     {
-        participant_->delete_publisher(publisher_);
+        participant_->delete_publisher( publisher_ );
     }
-    if (topic_ != nullptr)
+    if( topic_ != nullptr )
     {
-        participant_->delete_topic(topic_);
+        participant_->delete_topic( topic_ );
     }
-    DomainParticipantFactory::get_instance()->delete_participant(participant_);
+    DomainParticipantFactory::get_instance()->delete_participant( participant_ );
 }
 
 bool LoanableHelloWorldPublisher::init()
 {
     /* Initialize data_ here */
 
-    //CREATE THE PARTICIPANT
+    // CREATE THE PARTICIPANT
     DomainParticipantQos pqos;
-    pqos.name("Participant_pub");
+    pqos.name( "Participant_pub" );
 
-    // Indicates for how much time should a remote DomainParticipant consider the local DomainParticipant to be alive. 
-    // If the liveliness of the local DomainParticipant has not being asserted within this time, 
-    // the remote DomainParticipant considers the local DomainParticipant dead and destroys all the information regarding the local DomainParticipant and all its endpoints.
-    pqos.wire_protocol().builtin.discovery_config.leaseDuration = { 10, 0 }; //[sec]
+    // Indicates for how much time should a remote DomainParticipant consider the local
+    // DomainParticipant to be alive. If the liveliness of the local DomainParticipant has not being
+    // asserted within this time, the remote DomainParticipant considers the local DomainParticipant
+    // dead and destroys all the information regarding the local DomainParticipant and all its
+    // endpoints.
+    pqos.wire_protocol().builtin.discovery_config.leaseDuration = { 10, 0 };  //[sec]
 
-    participant_ = DomainParticipantFactory::get_instance()->create_participant(0, pqos);
-    if (participant_ == nullptr)
+    participant_ = DomainParticipantFactory::get_instance()->create_participant( 0, pqos );
+    if( participant_ == nullptr )
     {
         return false;
     }
 
-    //REGISTER THE TYPE
-    type_.register_type(participant_);
+    // REGISTER THE TYPE
+    type_.register_type( participant_ );
 
-    //CREATE THE PUBLISHER
-    publisher_ = participant_->create_publisher(PUBLISHER_QOS_DEFAULT, nullptr);
-    if (publisher_ == nullptr)
+    // CREATE THE PUBLISHER
+    publisher_ = participant_->create_publisher( PUBLISHER_QOS_DEFAULT, nullptr );
+    if( publisher_ == nullptr )
     {
         return false;
     }
 
-    //CREATE THE TOPIC
-    topic_ = participant_->create_topic(
-        "RS_FRAME",
-        type_.get_type_name(),
-        TOPIC_QOS_DEFAULT);
-    if (topic_ == nullptr)
+    // CREATE THE TOPIC
+    topic_ = participant_->create_topic( "RS_FRAME", type_.get_type_name(), TOPIC_QOS_DEFAULT );
+    if( topic_ == nullptr )
     {
         return false;
     }
@@ -106,18 +105,20 @@ bool LoanableHelloWorldPublisher::init()
     // The Subscriber receives samples from the moment it comes online, not before
     wqos.durability().kind = VOLATILE_DURABILITY_QOS;
 
-    // We use "RELIABLE_RELIABILITY_QOS" for making sure that the writer will only get a new sample slot
-    // If the reader is not reading it.
-    //wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+    // We use "RELIABLE_RELIABILITY_QOS" for making sure that the writer will only get a new sample
+    // slot If the reader is not reading it.
+    // wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
     wqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
-    //wqos.reliability().max_blocking_time = {10,0};
+    wqos.reliability().max_blocking_time = { TIME_T_INFINITE_SECONDS, TIME_T_INFINITE_NANOSECONDS };
 
-    // Activate the use of DataSharing. Entity creation will fail if requirements for DataSharing are not met
-    // The input shared memory folder can be changed into a specific folder but must be aligned with the readers
-    wqos.data_sharing().on("");
+    // Activate the use of DataSharing. Entity creation will fail if requirements for DataSharing
+    // are not met The input shared memory folder can be changed into a specific folder but must be
+    // aligned with the readers
+    wqos.data_sharing().on( "" );
 
     // The history keeps only the last 'depth' values
-    // The 'depth' parameter of the History defines how many samples are stored before starting to overwrite them with newer ones.
+    // The 'depth' parameter of the History defines how many samples are stored before starting to
+    // overwrite them with newer ones.
     wqos.history().kind = KEEP_LAST_HISTORY_QOS;
     wqos.history().depth = 1;
 
@@ -129,11 +130,12 @@ bool LoanableHelloWorldPublisher::init()
 
     // Strict samples pre-alocated pool to minimum size needed
     wqos.resource_limits().max_samples = 1;
-    //wqos.resource_limits().allocated_samples = 1;
+    wqos.resource_limits().max_instances = 1;
+    wqos.resource_limits().allocated_samples = 1;
     wqos.resource_limits().extra_samples = 0;
-    
-    writer_ = publisher_->create_datawriter(topic_, wqos, &listener_);
-    if (writer_ == nullptr)
+
+    writer_ = publisher_->create_datawriter( topic_, wqos, &listener_ );
+    if( writer_ == nullptr )
     {
         return false;
     }
@@ -143,15 +145,15 @@ bool LoanableHelloWorldPublisher::init()
 }
 
 void LoanableHelloWorldPublisher::PubListener::on_publication_matched(
-        eprosima::fastdds::dds::DataWriter*,
-        const eprosima::fastdds::dds::PublicationMatchedStatus& info)
+    eprosima::fastdds::dds::DataWriter*,
+    const eprosima::fastdds::dds::PublicationMatchedStatus& info )
 {
-    if (info.current_count_change == 1)
+    if( info.current_count_change == 1 )
     {
         matched = info.current_count;
         std::cout << "DataWriter matched.total = " << matched << std::endl;
     }
-    else if (info.current_count_change == -1)
+    else if( info.current_count_change == -1 )
     {
         matched = info.current_count;
         std::cout << "DataWriter unmatched. total = " << matched << std::endl;
@@ -159,66 +161,76 @@ void LoanableHelloWorldPublisher::PubListener::on_publication_matched(
     else
     {
         std::cout << info.current_count_change
-                  << " is not a valid value for PublicationMatchedStatus current count change" << std::endl;
+            << " is not a valid value for PublicationMatchedStatus current count change"
+            << std::endl;
     }
 }
 
 void LoanableHelloWorldPublisher::PubListener::on_offered_incompatible_qos(
-        DataWriter* writer,
-        const OfferedIncompatibleQosStatus& status ) 
-    {
-        std::cout << "Publisher incompatible QOS detected" << std::endl;
-    }
+    DataWriter* writer, const OfferedIncompatibleQosStatus& status )
+{
+    std::cout << "Publisher incompatible QOS detected" << std::endl;
+}
 
 void LoanableHelloWorldPublisher::run()
 {
     std::cout << "LoanableHelloWorld DataWriter waiting for DataReaders." << std::endl;
-    while (listener_.matched == 0)
+    while( listener_.matched == 0 )
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Sleep 250 ms
+        std::this_thread::sleep_for( std::chrono::milliseconds( 250 ) );  // Sleep 250 ms
     }
 
     int msgsent = 0;
     auto sleep_time = 33;
 
     rs2::config cfg;
-    cfg.enable_stream(RS2_STREAM_COLOR, 1280, 720);
+    cfg.enable_stream( RS2_STREAM_COLOR, 1280, 720 );
     rs2::pipeline p;
-    p.start(cfg);
+    bool simulate_frames = true;
+    if( !simulate_frames )
+        p.start( cfg );
 
     do
     {
-            auto f = p.wait_for_frames();
-            static int ii = 0; 
+        rs2::frameset f;
+        if( !simulate_frames )
+            f = p.wait_for_frames();
+        static int ii = 0;
 
-            void* sample = nullptr;
-            if (ii++ % 10 == 0)
-            {
-                auto ret = writer_->loan_sample(sample);
-                if (ReturnCode_t::RETCODE_OK != ret)
-                {
-                    std::cout << "ERROR: writer_->loan_sample failed with code: " << std::to_string(ret()) << std::endl; 
-                    continue;
-                }
-                std::cout << "Preparing sample at address " << sample << std::endl;
-                LoanableHelloWorld* data = static_cast<LoanableHelloWorld*>(sample);
-                data->index() = msgsent++;
-                std::string HiString = "LoanableHelloWorld";
-                auto color_frame = f.get_color_frame();
-                auto h = color_frame.get_height();
-                auto w = color_frame.get_width();
-                std::cout << "dim is: " << w << " x " << h << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
-                //memcpy(&data->data(), color_frame.get_data(), color_frame.get_data_size());
-                auto fill_num = 65 + msgsent % 26;
-                memset(data->data().data(), fill_num, 1000);
-                std::cout << "first data is:" << data->data()[0] << std::endl;
-                using namespace std::chrono; 
-	            auto time_now_us =  duration_cast< microseconds >( system_clock::now().time_since_epoch()).count();
-                
-                data->publish_time(time_now_us);
-                bool ok = writer_->write(sample);
-                std::cout << "Message: " << HiString << " with index: " << data->index() << " With data of: " << fill_num << (ok ? " SENT" : " NOT SENT") << std::endl;
-            }            
-            //std::this_thread::sleep_for(std::chrono::milliseconds(33));
-    } while (listener_.matched != 0 /*msgsent++ < 50*/);
+        void* sample = nullptr;
+        auto ret = writer_->loan_sample( sample );
+        if( ReturnCode_t::RETCODE_OK != ret )
+        {
+            std::cout << "ERROR: writer_->loan_sample failed with code: " << std::to_string( ret() )
+                << std::endl;
+            continue;
+        }
+        std::cout << "Preparing sample at address " << sample << std::endl;
+        LoanableHelloWorld* data = static_cast<LoanableHelloWorld*>( sample );
+        data->index() = msgsent++;
+        std::string HiString = "LoanableHelloWorld";
+        if( !simulate_frames )
+        {
+            auto color_frame = f.get_color_frame();
+            auto h = color_frame.get_height();
+            auto w = color_frame.get_width();
+            std::cout << "dim is: " << w << " x " << h
+                << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
+            memcpy( &data->data(), color_frame.get_data(), color_frame.get_data_size() );
+        }
+        auto fill_num = 65 + msgsent % 26;
+        memset( data->data().data(), fill_num, 1000 );
+        std::cout << "first data is:" << data->data()[0] << std::endl;
+        using namespace std::chrono;
+        auto time_now_us
+            = duration_cast<microseconds>( system_clock::now().time_since_epoch() ).count();
+
+        data->publish_time( time_now_us );
+        bool ok = writer_->write( sample );
+        std::cout << "Message: " << HiString << " with index: " << data->index()
+            << " With data of: " << fill_num << ( ok ? " SENT" : " NOT SENT" ) << std::endl;
+
+        if( simulate_frames )
+            std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+    } while( listener_.matched != 0 /*msgsent++ < 50*/ );
 }

@@ -15,6 +15,7 @@ endif()
 if(NOT fastrtps_FOUND)
     find_package(fastrtps REQUIRED)
 endif()
+
 # Set C++11
 include(CheckCXXCompilerFlag)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
