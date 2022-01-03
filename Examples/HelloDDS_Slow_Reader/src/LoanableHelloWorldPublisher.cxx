@@ -105,10 +105,10 @@ bool LoanableHelloWorldPublisher::init()
     // The Subscriber receives samples from the moment it comes online, not before
     wqos.durability().kind = VOLATILE_DURABILITY_QOS;
 
-    // We use "RELIABLE_RELIABILITY_QOS" for making sure that the writer will only get a new sample
-    // slot If the reader is not reading it.
-    // wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+    // TODO - Explain why
+    //wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
     wqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
+    
     wqos.reliability().max_blocking_time = { TIME_T_INFINITE_SECONDS, TIME_T_INFINITE_NANOSECONDS };
 
     // Activate the use of DataSharing. Entity creation will fail if requirements for DataSharing
@@ -129,10 +129,10 @@ bool LoanableHelloWorldPublisher::init()
     wqos.publish_mode().kind = SYNCHRONOUS_PUBLISH_MODE;
 
     // Strict samples pre-alocated pool to minimum size needed
-    wqos.resource_limits().max_samples = 1;
-    wqos.resource_limits().max_instances = 1;
-    wqos.resource_limits().allocated_samples = 1;
-    wqos.resource_limits().extra_samples = 0;
+     wqos.resource_limits().max_samples = 1;
+     wqos.resource_limits().max_instances = 1;
+     wqos.resource_limits().allocated_samples = 1;
+     wqos.resource_limits().extra_samples = 0;
 
     writer_ = publisher_->create_datawriter( topic_, wqos, &listener_ );
     if( writer_ == nullptr )
@@ -145,8 +145,8 @@ bool LoanableHelloWorldPublisher::init()
 }
 
 void LoanableHelloWorldPublisher::PubListener::on_publication_matched(
-    eprosima::fastdds::dds::DataWriter*,
-    const eprosima::fastdds::dds::PublicationMatchedStatus& info )
+    eprosima::fastdds::dds::DataWriter *,
+    const eprosima::fastdds::dds::PublicationMatchedStatus & info )
 {
     if( info.current_count_change == 1 )
     {
@@ -161,18 +161,18 @@ void LoanableHelloWorldPublisher::PubListener::on_publication_matched(
     else
     {
         std::cout << info.current_count_change
-            << " is not a valid value for PublicationMatchedStatus current count change"
-            << std::endl;
+                  << " is not a valid value for PublicationMatchedStatus current count change"
+                  << std::endl;
     }
 }
 
 void LoanableHelloWorldPublisher::PubListener::on_offered_incompatible_qos(
-    DataWriter* writer, const OfferedIncompatibleQosStatus& status )
+    DataWriter * writer, const OfferedIncompatibleQosStatus & status )
 {
     std::cout << "Publisher incompatible QOS detected" << std::endl;
 }
 
-void LoanableHelloWorldPublisher::run()
+void LoanableHelloWorldPublisher::run( bool simulate)
 {
     std::cout << "LoanableHelloWorld DataWriter waiting for DataReaders." << std::endl;
     while( listener_.matched == 0 )
@@ -181,56 +181,62 @@ void LoanableHelloWorldPublisher::run()
     }
 
     int msgsent = 0;
-    auto sleep_time = 33;
+    auto sleep_time = 200; //[ms]
 
     rs2::config cfg;
     cfg.enable_stream( RS2_STREAM_COLOR, 1280, 720 );
     rs2::pipeline p;
-    bool simulate_frames = true;
-    if( !simulate_frames )
+
+    if( ! simulate )
         p.start( cfg );
 
     do
     {
         rs2::frameset f;
-        if( !simulate_frames )
+        if( ! simulate )
             f = p.wait_for_frames();
         static int ii = 0;
 
-        void* sample = nullptr;
+        void * sample = nullptr;
         auto ret = writer_->loan_sample( sample );
+
         if( ReturnCode_t::RETCODE_OK != ret )
         {
             std::cout << "ERROR: writer_->loan_sample failed with code: " << std::to_string( ret() )
-                << std::endl;
+                      << std::endl;
+
+            if( simulate )
+                std::this_thread::sleep_for( std::chrono::milliseconds( sleep_time ) );
             continue;
         }
+
         std::cout << "Preparing sample at address " << sample << std::endl;
-        LoanableHelloWorld* data = static_cast<LoanableHelloWorld*>( sample );
+        LoanableHelloWorld * data = static_cast< LoanableHelloWorld * >( sample );
         data->index() = msgsent++;
-        std::string HiString = "LoanableHelloWorld";
-        if( !simulate_frames )
+        if( ! simulate )
         {
             auto color_frame = f.get_color_frame();
             auto h = color_frame.get_height();
             auto w = color_frame.get_width();
-            std::cout << "dim is: " << w << " x " << h
-                << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
-            memcpy( &data->data(), color_frame.get_data(), color_frame.get_data_size() );
+            std::cout << "dim is: " << w << " x " << h << " size is: " << color_frame.get_data_size() << " [bytes]" << std::endl;
+            memcpy(&data->data(), color_frame.get_data(), color_frame.get_data_size());
         }
+
+        // Fill first 1000 bytes with an alfabet letter for detecting data overruns on reader side.
         auto fill_num = 65 + msgsent % 26;
         memset( data->data().data(), fill_num, 1000 );
-        std::cout << "first data is:" << data->data()[0] << std::endl;
         using namespace std::chrono;
         auto time_now_us
-            = duration_cast<microseconds>( system_clock::now().time_since_epoch() ).count();
+            = duration_cast< microseconds >( system_clock::now().time_since_epoch() ).count();
 
         data->publish_time( time_now_us );
         bool ok = writer_->write( sample );
-        std::cout << "Message: " << HiString << " with index: " << data->index()
-            << " With data of: " << fill_num << ( ok ? " SENT" : " NOT SENT" ) << std::endl;
+        std::cout << "Message with index: " << data->index()
+                  << " With data of: " << fill_num << ( ok ? " SENT" : " NOT SENT" ) << std::endl;
 
-        if( simulate_frames )
-            std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-    } while( listener_.matched != 0 /*msgsent++ < 50*/ );
+        // Syncronize write rate on data simulation
+        if( simulate )
+            std::this_thread::sleep_for( std::chrono::milliseconds( sleep_time ) );
+    }
+    while( listener_.matched != 0 );
 }

@@ -39,7 +39,7 @@ public:
 
     bool init();
 
-    void run();
+    void run( bool simulate = false);
 
 private:
 

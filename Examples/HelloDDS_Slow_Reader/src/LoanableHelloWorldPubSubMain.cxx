@@ -29,12 +29,19 @@ int main(
 {
     int type = 0;
     bool slow = false;
+    bool simulate = false;
+    bool use_copy = false;
 
-    if (argc == 2 || argc == 3)
+    if ( argc >= 2 )
     {
         if (argc == 2 && strcmp(argv[1], "publisher") == 0)
         {
             type = 1;
+        }
+        else if (argc == 3 && strcmp(argv[1], "publisher") == 0 && strcmp(argv[2], "sim") == 0)
+        {
+            type = 1;
+            simulate = true;
         }
         else if (argc == 2 && strcmp(argv[1], "subscriber") == 0)
         {
@@ -44,6 +51,18 @@ int main(
         {
             type = 2;
             slow = true;
+        }
+        else if (argc == 3 && (strcmp(argv[1], "subscriber") == 0 && strcmp(argv[2], "use_copy") == 0))
+        {
+            type = 2;
+            use_copy = true;
+        }
+        else if (argc == 4 && strcmp(argv[1], "subscriber") == 0 && 
+        ((strcmp(argv[2], "use_copy") == 0 && strcmp(argv[3], "slow") == 0) || 
+        (strcmp(argv[2], "slow") == 0) && strcmp(argv[3], "use_copy") == 0))
+        {
+            type = 2;
+            use_copy = slow = true;
         }
     }
     
@@ -67,7 +86,7 @@ int main(
             LoanableHelloWorldPublisher mypub;
             if (mypub.init())
             {
-                mypub.run();
+                mypub.run( simulate );
             }
             else
             {
@@ -78,7 +97,7 @@ int main(
         case 2:
         {
             LoanableHelloWorldSubscriber mysub;
-            if (!mysub.init( slow ))
+            if (!mysub.init( use_copy, slow ))
             {
                 std::cout << "Failed creating subscriber!" << std::endl;
             }

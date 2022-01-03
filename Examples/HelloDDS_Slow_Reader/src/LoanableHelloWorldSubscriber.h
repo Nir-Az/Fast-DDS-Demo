@@ -33,24 +33,25 @@
 class LoanableHelloWorldSubscriber
 {
 public:
-
     LoanableHelloWorldSubscriber();
 
     virtual ~LoanableHelloWorldSubscriber();
 
-    bool init( bool slow = false );
+    bool init( bool use_copy = false, bool slow = false );
 
     void run();
 
 private:
+    void get_sample_safe( eprosima::fastdds::dds::Entity * entity );
+    void get_sample( eprosima::fastdds::dds::Entity * entity );
 
-    eprosima::fastdds::dds::DomainParticipant* participant_;
-    eprosima::fastdds::dds::Subscriber* subscriber_;
-    eprosima::fastdds::dds::Topic* topic_;
-    eprosima::fastdds::dds::DataReader* reader_;
+    eprosima::fastdds::dds::DomainParticipant * participant_;
+    eprosima::fastdds::dds::Subscriber * subscriber_;
+    eprosima::fastdds::dds::Topic * topic_;
+    eprosima::fastdds::dds::DataReader * reader_;
     eprosima::fastdds::dds::TypeSupport type_;
     bool _slow = false;
-
+    bool _use_copy = false;
     eprosima::fastdds::dds::WaitSet wait_set_;
     eprosima::fastdds::dds::GuardCondition terminate_condition_;
     std::thread thread_;
@@ -59,26 +60,22 @@ private:
     class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
     public:
-
         SubListener() = default;
 
         ~SubListener() override = default;
 
-        //void on_data_available(
+        // void on_data_available(
         //        eprosima::fastdds::dds::DataReader* reader) override;
 
         void on_subscription_matched(
-                eprosima::fastdds::dds::DataReader* reader,
-                const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
-        
-        void set_slow_speed() { _slow = true;}
+            eprosima::fastdds::dds::DataReader * reader,
+            const eprosima::fastdds::dds::SubscriptionMatchedStatus & info ) override;
+
 
         int matched = 0;
         uint32_t samples = 0;
-    private:
-        bool _slow = false;
-    }
-    listener_;
+
+    } listener_;
 };
 
-#endif // _LOANABLEHELLOWORLD_SUBSCRIBER_H_
+#endif  // _LOANABLEHELLOWORLD_SUBSCRIBER_H_
