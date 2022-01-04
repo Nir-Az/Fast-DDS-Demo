@@ -46,8 +46,8 @@ LoanableHelloWorldSubscriber::~LoanableHelloWorldSubscriber()
     terminate_condition_.set_trigger_value( true );
 
     // Wait for the thread to finish
-    if( thread_.joinable() )
-        thread_.join();
+    if( _thread.joinable() )
+        _thread.join();
 
     if( reader_ != nullptr )
     {
@@ -68,10 +68,6 @@ bool LoanableHelloWorldSubscriber::init( bool use_copy, bool slow )
 {
     _slow = slow;
     _use_copy = use_copy;
-    // if (slow)
-    //{
-    //    listener_.set_slow_speed();
-    //}
 
     // CREATE THE PARTICIPANT
     DomainParticipantQos pqos;
@@ -116,8 +112,8 @@ bool LoanableHelloWorldSubscriber::init( bool use_copy, bool slow )
     rqos.history().depth = 1;
 
     // TODO - Explain why
-    //rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
-    rqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
+    rqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+    //rqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
 
     // The Subscriber receives samples from the moment it comes online, not before
     rqos.durability().kind = VOLATILE_DURABILITY_QOS;
@@ -140,7 +136,7 @@ bool LoanableHelloWorldSubscriber::init( bool use_copy, bool slow )
 
     wait_set_.attach_condition( terminate_condition_ );
     wait_set_.attach_condition( reader_->get_statuscondition() );
-    thread_ = std::thread( &LoanableHelloWorldSubscriber::run, this );
+    _thread = std::thread( &LoanableHelloWorldSubscriber::run, this );
 
     return true;
 }
@@ -221,38 +217,14 @@ void LoanableHelloWorldSubscriber::get_sample_safe( Entity * entity )
     while( ReturnCode_t::RETCODE_OK == reader->take_next_sample( &data, &info ) )
     {
         // Only samples for which valid_data is true should be accessed
-        if( info.valid_data )
+        // valid_data indicates that the instance is still ALIVE and the `take` return an updated sample
+        // is_sample_valid()` return always false - BUG on FastDDS, unlock when fixed
+        if( info.valid_data /*&& reader->is_sample_valid(&data, &info)*/ )
         {
-            // Process sample on data_seq[n]
-            // `is_sample_valid()` return always false - BUG on FastDDS
-            // if (!reader->is_sample_valid(&data[0], &infos[0]))
-            //{
-            //    std::cout << "Sample is not valid!" << std::endl;
-            //}
-            // Print your structure data here.
             const LoanableHelloWorld & sample = data;
 
-            ++samples;
-            using namespace std::chrono;
-            auto time_now_us
-                = duration_cast< microseconds >( system_clock::now().time_since_epoch() ).count();
-            std::cout << ( _slow ? "Slow " : "" ) << "Sample received (count=" << samples
-                      << ") at address " << &sample.data() << "  index=" << sample.index()
-                      << " Time Since Published: " << ( time_now_us - sample.publish_time() )
-                      << " [us]" << std::endl;
-            
-            // Verify first 1000 bytes are equal even after sleep in the middle
-            char slot = sample.data()[0];
-            std::array<char, 1000> ref_buffer;
-            ref_buffer.fill( slot );
-            
-            // Simulate long processing time
-            if( _slow )
-                std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-
-            if (0 != std::memcmp(ref_buffer.data(), sample.data().data(), 1))
-                std::cout << "corrupted data found, first char is:" << slot << ", last is: " << sample.data()[999] << ", ref_buffer[0] = " << ref_buffer[0] << " ref_buffer[999] = " << ref_buffer[0] << std::endl;
-
+            ++_samples;
+            process_sample( sample );           
             if( ! info.valid_data )
                 std::cout << "corrupted data found after processing! info validity is false" << std::endl;
         }
@@ -273,28 +245,40 @@ void LoanableHelloWorldSubscriber::get_sample( eprosima::fastdds::dds::Entity * 
         for( DataSeq::size_type i = 0; i < infos.length(); ++i )
         {
             // Only samples for which valid_data is true should be accessed
-            if( infos[i].valid_data )
+            // valid_data indicates that the instance is still ALIVE
+            // is_sample_valid()` return always false - BUG on FastDDS, unlock when fixed
+            if( infos[i].valid_data /* && reader->is_sample_valid(&data[0], &infos[0]) */)
             {
-                // Process sample on data_seq[n]
-                // `is_sample_valid()` return always false - BUG on FastDDS
-                // if (!reader->is_sample_valid(&data[0], &infos[0]))
-                //{
-                //    std::cout << "Sample is not valid!" << std::endl;
-                //}
-                // Print your structure data here.
                 const LoanableHelloWorld & sample = data[i];
 
-                ++samples;
+                ++_samples;
+
+                process_sample( sample );
+
+                if( ! infos[i].valid_data )
+                    std::cout << "corrupted data found after processing!" << std::endl;
+            }
+        }
+
+        // must return the loaned sequences when done processing
+        reader->return_loan( data, infos );
+    }
+}
+
+void LoanableHelloWorldSubscriber::process_sample(const LoanableHelloWorld& sample)
+{
                 using namespace std::chrono;
                 auto time_now_us
                     = duration_cast< microseconds >( system_clock::now().time_since_epoch() )
                           .count();
-                std::cout << ( _slow ? "Slow " : "" ) << "Sample received (count=" << samples
+                std::cout << ( _slow ? "Slow " : "" ) << "Sample received (count=" << _samples
                           << ") at address " << &sample.data() << "  index=" << sample.index()
                           << " Time Since Published: " << ( time_now_us - sample.publish_time() )
                           << " [us]" << std::endl;
                 
                 // Verify first 1000 bytes are equal even after sleep in the middle
+                // We sample the first byte, build a 100 char array out of it, sleep and than compare to the shared memory sample again
+                // If the writer write on it the values will be different
                 auto slot = sample.data()[0];
                 std::vector<char> ref_buffer(1000, slot);
                 
@@ -305,12 +289,4 @@ void LoanableHelloWorldSubscriber::get_sample( eprosima::fastdds::dds::Entity * 
                 if (0 != memcmp(ref_buffer.data(), sample.data().data(), 1))
                     std::cout << "corrupted data found, first char is:" << slot << ", last is: " << sample.data()[999] << std::endl;
 
-                if( ! infos[i].valid_data )
-                    std::cout << "corrupted data found after processing!" << std::endl;
-            }
-        }
-
-        // must return the loaned sequences when done processing
-        reader->return_loan( data, infos );
-    }
 }

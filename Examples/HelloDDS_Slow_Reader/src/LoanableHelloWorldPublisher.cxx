@@ -106,8 +106,8 @@ bool LoanableHelloWorldPublisher::init()
     wqos.durability().kind = VOLATILE_DURABILITY_QOS;
 
     // TODO - Explain why
-    //wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
-    wqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
+    wqos.reliability().kind = RELIABLE_RELIABILITY_QOS;
+    //wqos.reliability().kind = BEST_EFFORT_RELIABILITY_QOS;
     
     wqos.reliability().max_blocking_time = { TIME_T_INFINITE_SECONDS, TIME_T_INFINITE_NANOSECONDS };
 
@@ -128,11 +128,15 @@ bool LoanableHelloWorldPublisher::init()
     // Synchronous publication mode
     wqos.publish_mode().kind = SYNCHRONOUS_PUBLISH_MODE;
 
-    // Strict samples pre-alocated pool to minimum size needed
-     wqos.resource_limits().max_samples = 1;
-     wqos.resource_limits().max_instances = 1;
-     wqos.resource_limits().allocated_samples = 1;
-     wqos.resource_limits().extra_samples = 0;
+    // Strict samples pre-allocated pool to minimum size needed
+    int readers_count = 2;
+    wqos.resource_limits().max_samples = 1;
+    wqos.resource_limits().max_instances = 1;
+    wqos.resource_limits().allocated_samples = 1;
+    // We set the publisher extra_samples to the amount of free slots we need in order for our
+    // readers not to block our writing pool
+    // On this example we have a slow reader and a fast reader, so we need 1 extra sample slot beside the depth() = 1
+    wqos.resource_limits().extra_samples = readers_count - wqos.history().depth;
 
     writer_ = publisher_->create_datawriter( topic_, wqos, &listener_ );
     if( writer_ == nullptr )
@@ -181,7 +185,7 @@ void LoanableHelloWorldPublisher::run( bool simulate)
     }
 
     int msgsent = 0;
-    auto sleep_time = 200; //[ms]
+    auto sleep_time = 33; //[ms]
 
     rs2::config cfg;
     cfg.enable_stream( RS2_STREAM_COLOR, 1280, 720 );

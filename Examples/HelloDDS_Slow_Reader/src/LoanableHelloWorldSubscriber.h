@@ -30,6 +30,8 @@
 #include <fastdds/dds/core/condition/WaitSet.hpp>
 #include <fastdds/dds/core/condition/GuardCondition.hpp>
 
+class LoanableHelloWorld;
+
 class LoanableHelloWorldSubscriber
 {
 public:
@@ -44,18 +46,21 @@ public:
 private:
     void get_sample_safe( eprosima::fastdds::dds::Entity * entity );
     void get_sample( eprosima::fastdds::dds::Entity * entity );
+    
+    void process_sample(const LoanableHelloWorld& sample);
 
     eprosima::fastdds::dds::DomainParticipant * participant_;
     eprosima::fastdds::dds::Subscriber * subscriber_;
     eprosima::fastdds::dds::Topic * topic_;
     eprosima::fastdds::dds::DataReader * reader_;
     eprosima::fastdds::dds::TypeSupport type_;
-    bool _slow = false;
-    bool _use_copy = false;
     eprosima::fastdds::dds::WaitSet wait_set_;
     eprosima::fastdds::dds::GuardCondition terminate_condition_;
-    std::thread thread_;
-    uint32_t samples = 0;
+
+    bool _slow = false;
+    bool _use_copy = false;
+    std::thread _thread;
+    uint32_t _samples = 0;
 
     class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
@@ -63,9 +68,6 @@ private:
         SubListener() = default;
 
         ~SubListener() override = default;
-
-        // void on_data_available(
-        //        eprosima::fastdds::dds::DataReader* reader) override;
 
         void on_subscription_matched(
             eprosima::fastdds::dds::DataReader * reader,
