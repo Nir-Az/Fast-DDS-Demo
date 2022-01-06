@@ -44,8 +44,8 @@ public:
     void run();
 
 private:
-    void get_sample_safe( eprosima::fastdds::dds::Entity * entity );
-    void get_sample( eprosima::fastdds::dds::Entity * entity );
+    void get_sample_safe(  );
+    void get_sample(  );
     
     void process_sample(const LoanableHelloWorld& sample);
 
@@ -54,7 +54,6 @@ private:
     eprosima::fastdds::dds::Topic * topic_;
     eprosima::fastdds::dds::DataReader * reader_;
     eprosima::fastdds::dds::TypeSupport type_;
-    eprosima::fastdds::dds::WaitSet wait_set_;
     eprosima::fastdds::dds::GuardCondition terminate_condition_;
 
     bool _slow = false;

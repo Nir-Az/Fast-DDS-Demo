@@ -134,8 +134,6 @@ bool LoanableHelloWorldSubscriber::init( bool use_copy, bool slow )
         return false;
     }
 
-    wait_set_.attach_condition( terminate_condition_ );
-    wait_set_.attach_condition( reader_->get_statuscondition() );
     _thread = std::thread( &LoanableHelloWorldSubscriber::run, this );
 
     return true;
@@ -167,54 +165,29 @@ void LoanableHelloWorldSubscriber::run()
     // Main loop is repeated until the terminate condition is triggered
     while( false == terminate_condition_.get_trigger_value() )
     {
-        // Wait for any of the conditions to be triggered
-        ReturnCode_t ret_code;
-        ConditionSeq triggered_conditions;
-        ret_code = wait_set_.wait( triggered_conditions, eprosima::fastrtps::c_TimeInfinite );
-        if( ReturnCode_t::RETCODE_OK != ret_code )
+        if (reader_->wait_for_unread_message({ 1, 0 }))
         {
-            std::cout << "Error on `wait()`, error code: " << std::to_string( ret_code() )
-                      << std::endl;
-            continue;
+            if ( _use_copy )
+                get_sample_safe(  );
+            else
+                get_sample(  );
         }
-
-        // Process triggered conditions
-        for( Condition * cond : triggered_conditions )
+        else
         {
-            StatusCondition * status_cond = dynamic_cast< StatusCondition * >( cond );
-            if( nullptr != status_cond )
-            {
-                Entity * entity = status_cond->get_entity();
-                StatusMask changed_statuses = entity->get_status_changes();
-
-                // Process status. Liveliness changed and data available are depicted as an example
-                if( changed_statuses.is_active( StatusMask::liveliness_changed() ) )
-                {
-                    std::cout << "Liveliness changed reported for entity "
-                              << entity->get_instance_handle() << std::endl;
-                }
-
-                if( changed_statuses.is_active( StatusMask::data_available() ) )
-                {
-                    if ( _use_copy )
-                        get_sample_safe( entity );
-                    else
-                        get_sample( entity );
-                }
-            }
+            std::cout << "No data available for 1 second" << std::endl;
         }
     }
 }
 
-void LoanableHelloWorldSubscriber::get_sample_safe( Entity * entity )
+void LoanableHelloWorldSubscriber::get_sample_safe(  )
 {
     LoanableHelloWorld data;
 
     SampleInfo info;
-    DataReader * reader = static_cast< DataReader * >( entity );
+    //DataReader * reader = static_cast< DataReader * >( entity );
 
     // Process all the samples until no one is returned
-    while( ReturnCode_t::RETCODE_OK == reader->take_next_sample( &data, &info ) )
+    while( ReturnCode_t::RETCODE_OK == reader_->take_next_sample( &data, &info ) )
     {
         // Only samples for which valid_data is true should be accessed
         // valid_data indicates that the instance is still ALIVE and the `take` return an updated sample
@@ -230,16 +203,16 @@ void LoanableHelloWorldSubscriber::get_sample_safe( Entity * entity )
         }
     }
 }
-void LoanableHelloWorldSubscriber::get_sample( eprosima::fastdds::dds::Entity * entity )
+void LoanableHelloWorldSubscriber::get_sample(  )
 {
     FASTDDS_SEQUENCE( DataSeq, LoanableHelloWorld );
     DataSeq data;
 
     SampleInfoSeq infos;
-    DataReader * reader = static_cast< DataReader * >( entity );
 
+    char* sample_address = 0;
     // Process all the samples until no one is returned
-    while( ReturnCode_t::RETCODE_OK == reader->take( data, infos ) )
+    while( ReturnCode_t::RETCODE_OK == reader_->take( data, infos ) )
     {
         // Both info_seq.length() and data_seq.length() will have the number of samples returned
         for( DataSeq::size_type i = 0; i < infos.length(); ++i )
@@ -247,12 +220,11 @@ void LoanableHelloWorldSubscriber::get_sample( eprosima::fastdds::dds::Entity * 
             // Only samples for which valid_data is true should be accessed
             // valid_data indicates that the instance is still ALIVE
             // is_sample_valid()` return always false - BUG on FastDDS, unlock when fixed
-            if( infos[i].valid_data /* && reader->is_sample_valid(&data[0], &infos[0]) */)
+            if( infos[i].valid_data /* && reader_->is_sample_valid(&data[0], &infos[0]) */)
             {
                 const LoanableHelloWorld & sample = data[i];
-
+                sample_address = &data[i].data()[0];
                 ++_samples;
-
                 process_sample( sample );
 
                 if( ! infos[i].valid_data )
@@ -261,7 +233,7 @@ void LoanableHelloWorldSubscriber::get_sample( eprosima::fastdds::dds::Entity * 
         }
 
         // must return the loaned sequences when done processing
-        reader->return_loan( data, infos );
+        reader_->return_loan( data, infos );
     }
 }
 
