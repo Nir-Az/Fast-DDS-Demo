@@ -1,0 +1,6 @@
+struct LoanableHelloWorld
+{
+	unsigned long index;
+	char data[1280*720*3];
+	long long publish_time; //[us]
+};
