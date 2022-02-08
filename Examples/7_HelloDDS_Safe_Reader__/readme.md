@@ -1,3 +1,5 @@
+**TODO - this example was interrupted and canceled, do not use this example!**
+
 On this example I wanted to use a combination of boost::interprocess shared memory for read_only access.
 
 The fastDDS writer will write to the topic the allocated shared_memory address
